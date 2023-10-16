@@ -41,10 +41,10 @@ pub async fn register_application(
 }
 
 pub async fn get_application(
-    Extension(app_reg): Extension<Arc<ApplicationRegister>>,
+    Extension(app_reg): Extension<Arc<Mutex<ApplicationRegister>>>,
     Path(app_name): Path<String>,
 ) -> Response {
-    match app_reg.apps.get(&app_name) {
+    match app_reg.lock().await.apps.get(&app_name) {
         Some(k) => {
             let json_response = Json(k.clone());
             return (StatusCode::OK, json_response).into_response();

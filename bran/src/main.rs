@@ -19,7 +19,7 @@ async fn main() {
     info!("Initialized Shared Space");
 
     let app = Router::new()
-        .nest("/api", endpoints::router())
+        .nest("/", endpoints::router())
         .layer(Extension(shared_state));
     let addr = SocketAddr::from(([0, 0, 0, 0], 8014));
 
