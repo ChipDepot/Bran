@@ -34,7 +34,7 @@ pub async fn register_application(
         .lock()
         .await
         .apps
-        .insert(app_name.clone(), application);
+        .insert(app_name.clone(), application.clone());
     info!("{} was added to the register", app_name.clone());
 
     (StatusCode::OK).into_response()
