@@ -32,7 +32,7 @@ pub async fn get_application(
             );
             (
                 StatusCode::NOT_FOUND,
-                Json(json!({"msg": format!("{} not found", &app_name)})),
+                Json(json!({"msg": format!("{} context not found. Use lexical client to set state", &app_name)})),
             )
                 .into_response()
         }
