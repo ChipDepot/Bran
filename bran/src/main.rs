@@ -21,7 +21,8 @@ async fn main() {
 
     tokio::spawn(async {
         let app = Router::new()
-            .nest("/", endpoints::router())
+            .nest("/", endpoints::extras_router())
+            .nest("/apps", endpoints::main_router())
             .layer(Extension(shared_state));
         let addr = SocketAddr::from(([0, 0, 0, 0], 8014));
         let tcp_listener = TcpListener::bind(&addr).await.unwrap();
