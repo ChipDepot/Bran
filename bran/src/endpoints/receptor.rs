@@ -18,7 +18,7 @@ pub async fn recieve_objective(
     Path(app_name): Path<String>,
     Json(application): Json<Application>,
 ) -> Response {
-    info!("Get for {} request from {}", app_name, addr);
+    info!("POST for {} request from {}", app_name, addr);
 
     let reg = app_reg
         .lock()

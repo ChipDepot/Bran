@@ -1,5 +1,6 @@
 mod aggregator;
 mod endpoints;
+mod utils;
 
 #[macro_use]
 extern crate log;
@@ -8,7 +9,7 @@ use axum::{Extension, Router};
 use std::{net::SocketAddr, sync::Arc, time::Duration};
 use tokio::{net::TcpListener, sync::Mutex, time::sleep};
 
-use aggregator::application::ApplicationRegister;
+use aggregator::ApplicationRegister;
 
 #[tokio::main]
 async fn main() {

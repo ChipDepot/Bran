@@ -1,7 +1,9 @@
 use std::collections::HashMap;
+use std::net::SocketAddr;
 
 use serde::Deserialize;
 use starduck::Application;
+use url::Url;
 
 #[derive(Deserialize, Clone)]
 pub struct ApplicationRegister {
