@@ -1,6 +1,6 @@
 mod aggregator;
 mod endpoints;
-mod utils;
+mod planner;
 
 #[macro_use]
 extern crate log;
@@ -11,30 +11,44 @@ use tokio::{net::TcpListener, sync::Mutex, time::sleep};
 
 use aggregator::ApplicationRegister;
 
+use starduck::utils::PORT;
+
 #[tokio::main]
 async fn main() {
     env_logger::init();
 
+    starduck::utils::load_env(None);
+
     // Locate the space to handle the objective apps
     let app_aggregator = ApplicationRegister::new();
-    let shared_state = Arc::new(Mutex::new(app_aggregator));
-    info!("Initialized Shared Space");
+    let state_axum = Arc::new(Mutex::new(app_aggregator));
+    let state_planner = Arc::clone(&state_axum);
 
-    tokio::spawn(async {
+    tokio::spawn(async move {
+        let port = starduck::utils::get(PORT).unwrap_or(8014);
+
         let app = Router::new()
             .nest("/", endpoints::extras_router())
             .nest("/apps", endpoints::main_router())
-            .layer(Extension(shared_state));
-        let addr = SocketAddr::from(([0, 0, 0, 0], 8014));
-        let tcp_listener = TcpListener::bind(&addr).await.unwrap();
+            .layer(Extension(state_axum));
+
+        let addr = SocketAddr::from(([0, 0, 0, 0], port));
+        let tcp_listener = TcpListener::bind(&addr).await.unwrap_or_else(|e| {
+            error!("Could not start server: {e}");
+            std::process::exit(-1);
+        });
 
         info!("Initializing server at {}", &addr);
+
         axum::serve(
             tcp_listener,
             app.into_make_service_with_connect_info::<SocketAddr>(),
         )
         .await
-        .unwrap();
+        .unwrap_or_else(|e| {
+            error!("Could not start server: {e}");
+            std::process::exit(-1);
+        });
     });
 
     loop {

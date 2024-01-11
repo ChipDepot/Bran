@@ -4,8 +4,8 @@ use serde_json::json;
 use tokio::sync::Mutex;
 
 use axum::{
-    extract::{ConnectInfo, Json, Path, Request},
-    http::{Method, StatusCode},
+    extract::{ConnectInfo, Json, Path},
+    http::StatusCode,
     response::{IntoResponse, Response},
     Extension,
 };
