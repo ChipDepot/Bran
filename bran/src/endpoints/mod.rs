@@ -4,13 +4,14 @@ mod receptor;
 use std::path::PathBuf;
 
 use axum::{
-    routing::{get, post},
+    routing::{get, post, put},
     Router,
 };
 use tower_http::services::ServeFile;
 
 pub(crate) fn main_router() -> Router {
     Router::new()
+        .route("/:app", put(receptor::update_state))
         .route("/:app", post(receptor::recieve_objective))
         .route("/:app", get(contexter::get_application))
 }

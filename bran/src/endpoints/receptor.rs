@@ -18,18 +18,40 @@ pub async fn recieve_objective(
     Path(app_name): Path<String>,
     Json(application): Json<Application>,
 ) -> Response {
-    info!("Get for {} request from {}", app_name, addr);
+    info!("POST for {} request from {}", app_name, addr);
 
-    let reg = app_reg
-        .lock()
-        .await
-        .apps
-        .insert(app_name.clone(), application.clone());
+    let mut guard = app_reg.lock().await;
 
-    match reg {
-        Some(_) => info!("{}'s state was updated", app_name.clone()),
-        None => info!("{} was added to the register", app_name.clone()),
+    if let Some(_) = guard.apps.get(&app_name) {
+        error!("Application already registered");
+        return (StatusCode::BAD_REQUEST).into_response();
     }
+
+    guard.apps.insert(app_name.clone(), application.clone());
+
+    info!("{} was added to the register", app_name.clone());
+
+    (StatusCode::OK).into_response()
+}
+
+pub async fn update_state(
+    Extension(app_reg): Extension<Arc<Mutex<ApplicationRegister>>>,
+    ConnectInfo(addr): ConnectInfo<SocketAddr>,
+    Path(app_name): Path<String>,
+    Json(application): Json<Application>,
+) -> Response {
+    info!("PUT for {} request from {}", app_name, addr);
+
+    let mut guard = app_reg.lock().await;
+
+    if let None = guard.apps.get(&app_name) {
+        error!("Application is not in the register");
+        return (StatusCode::BAD_REQUEST).into_response();
+    }
+
+    guard.apps.insert(app_name.clone(), application.clone());
+
+    info!("{}'s state was updated", app_name.clone());
 
     (StatusCode::OK).into_response()
 }

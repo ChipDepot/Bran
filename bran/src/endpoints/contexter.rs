@@ -19,22 +19,17 @@ pub async fn get_application(
 ) -> Response {
     info!("Get for {} request from {}", app_name, addr);
 
-    match app_reg.lock().await.apps.get(&app_name) {
-        Some(k) => {
-            let json_response = Json(k.clone());
-            info!("{} info sent to {}", app_name, addr);
-            return (StatusCode::OK, json_response).into_response();
-        }
-        None => {
-            warn!(
-                "Missing {} context. Use lexical client to set state",
-                app_name
-            );
-            (
-                StatusCode::NOT_FOUND,
-                Json(json!({"msg": format!("{} context not found. Use lexical client to set state", &app_name)})),
-            )
-                .into_response()
-        }
+    let m_app_reg = app_reg.lock().await;
+
+    if let Some(app) = m_app_reg.apps.get(&app_name) {
+        let json_response = Json(app.clone());
+
+        info!("{} info sent to {}", app_name, addr);
+        return (StatusCode::OK, json_response).into_response();
     }
+
+    warn!("Missing {app_name} context. Use lexical client to set state");
+
+    let err_msg = format!("{app_name} context not found. Use lexical client to set state");
+    (StatusCode::NOT_FOUND, Json(json!({"msg": err_msg}))).into_response()
 }
