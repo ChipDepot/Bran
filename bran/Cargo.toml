@@ -25,3 +25,5 @@ anyhow = "1.0.78"
 dotenv = "0.15.0"
 reqwest = { version = "0.11.23", features = ["json"] }
 url = { version = "2.5.0", features = ["serde"] }
+async-trait = "0.1.77"
+uuid = { version = "1.6.1", features = ["serde", "v4"] }
