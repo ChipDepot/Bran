@@ -1,6 +1,6 @@
 use anyhow::{bail, Result};
 
-use starduck::{AdditionOrder, ReconfigureOrder, RestartOrder};
+use starduck::AdditionOrder;
 use uuid::Uuid;
 
 use super::planner::ProblemInfo;

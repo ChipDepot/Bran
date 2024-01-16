@@ -40,11 +40,31 @@ pub struct Planner {
 
 impl Planner {
     const DOTHING: &str = "dothing:8050";
+    const WATCHER_DELAY: &str = "watcher_delay";
+    const INTERVAL: &str = "watcher_interval";
 
     pub fn new(register: Arc<Mutex<ApplicationRegister>>) -> Self {
         Self {
             register,
             problem_action: HashMap::new(),
+        }
+    }
+
+    pub async fn watch_over(&self) {
+        let wait = env::var(Self::WATCHER_DELAY)
+            .map(|k| std::time::Duration::from_secs(k.parse().unwrap()))
+            .unwrap_or(std::time::Duration::from_secs(0));
+
+        let interval = env::var(Self::INTERVAL)
+            .map(|k| std::time::Duration::from_secs(k.parse().unwrap()))
+            .unwrap_or(std::time::Duration::from_secs(10));
+
+        std::thread::sleep(wait);
+
+        loop {
+            self.execute_actions().await;
+
+            std::thread::sleep(interval);
         }
     }
 

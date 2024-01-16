@@ -5,9 +5,12 @@ mod planner;
 #[macro_use]
 extern crate log;
 
+use std::net::SocketAddr;
+use std::sync::{Arc, Mutex};
+
 use axum::{Extension, Router};
-use std::{net::SocketAddr, sync::Arc, time::Duration};
-use tokio::{net::TcpListener, sync::Mutex, time::sleep};
+use planner::Planner;
+use tokio::net::TcpListener;
 
 use aggregator::ApplicationRegister;
 
@@ -51,7 +54,9 @@ async fn main() {
         });
     });
 
+    let planner = Planner::new(state_planner);
+
     loop {
-        sleep(Duration::from_secs(60)).await;
+        planner.watch_over().await;
     }
 }
