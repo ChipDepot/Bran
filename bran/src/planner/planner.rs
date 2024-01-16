@@ -18,11 +18,11 @@ pub struct ProblemInfo {
 }
 
 impl ProblemInfo {
-    pub fn new(location_key: &str, data_key: &str, device_uuid: Option<Uuid>) -> Self {
+    pub fn new(location_key: &str, data_key: &str, device_uuid: &Option<Uuid>) -> Self {
         Self {
             location_key: location_key.to_string(),
             data_requirement_key: data_key.to_string(),
-            device_uuid,
+            device_uuid: device_uuid.clone(),
         }
     }
 }
@@ -50,7 +50,7 @@ impl Planner {
         }
     }
 
-    pub async fn watch_over(&self) {
+    pub async fn watch_over(&mut self) {
         let wait = env::var(Self::WATCHER_DELAY)
             .map(|k| std::time::Duration::from_secs(k.parse().unwrap()))
             .unwrap_or(std::time::Duration::from_secs(0));
@@ -62,13 +62,15 @@ impl Planner {
         std::thread::sleep(wait);
 
         loop {
+            info!("Starting Planner Execution");
+
             self.execute_actions().await;
 
             std::thread::sleep(interval);
         }
     }
 
-    async fn execute_actions(&self) {
+    async fn execute_actions(&mut self) {
         let applications = self
             .register
             .lock()
@@ -88,6 +90,8 @@ impl Planner {
         let target = env::var(Self::DOTHING).unwrap_or("localhost:8050".to_owned());
 
         for app in applications {
+            info!("Checking Application {}", &app.name);
+
             if let Some(directives) = self.register.lock().unwrap().directives.get(&app.name) {
                 for problem in self.find_problems("root", &app.locations) {
                     match problem {
@@ -119,6 +123,8 @@ impl Planner {
                             if let Some(Some(order)) =
                                 directives.get(&p.location_key).map(|d| d.reconfig.clone())
                             {
+                                self.problem_action.insert(p.clone(), Action::Reconfigure);
+
                                 let mut mod_order = order.clone();
                                 mod_order.uuid = Some(p.device_uuid.unwrap());
 
@@ -137,6 +143,8 @@ impl Planner {
                             if let Some(Some(order)) =
                                 directives.get(&p.location_key).map(|d| d.restart.clone())
                             {
+                                self.problem_action.insert(p.clone(), Action::Restart);
+
                                 let mut mod_order = order.clone();
                                 mod_order.uuid = Some(p.device_uuid.unwrap());
 
@@ -169,26 +177,57 @@ impl Planner {
                 .filter(|(_, data)| data.status != Status::Coherent)
                 .collect::<Vec<_>>();
 
+            warn!(
+                "Found {} data requirements with errors in {}",
+                &nc_data_req.len(),
+                location_key
+            );
+
             for (data_key, data_req) in nc_data_req {
                 let req_count = data_req.components.len();
 
                 // Missing services, has to add more
                 if data_req.count < req_count {
+                    info!(
+                        "Creating Addition Order for data requirement {} in {}",
+                        data_key, location_key
+                    );
+
                     let missing_count = req_count - data_req.count;
-                    let problem_info = ProblemInfo::new(location_key, data_key, None);
+                    let problem_info = ProblemInfo::new(location_key, data_key, &None);
                     report.push((Action::Addition(missing_count), problem_info));
 
                 //
                 } else if data_req.count >= req_count {
                     for comp in data_req.components.clone() {
-                        let problem_info = ProblemInfo::new(location_key, data_key, comp.uuid);
+                        let problem_info = ProblemInfo::new(location_key, data_key, &comp.uuid);
 
                         match self.problem_action.get(&problem_info) {
                             Some(Action::Restart) => {
+                                info!(
+                                    "Creating Reconfigure Order for component {} in data requirement {} in {}",
+                                    comp.uuid.unwrap(), data_key, location_key
+                                );
+
                                 report.push((Action::Reconfigure, problem_info))
                             }
-                            Some(_) => report.push((Action::Restart, problem_info)),
-                            None => report.push((Action::Addition(1), problem_info)),
+                            Some(_) => {
+                                info!(
+                                    "Creating Addition Order for data requirement {} in {}",
+                                    data_key, location_key
+                                );
+                                let problem_info = ProblemInfo::new(location_key, data_key, &None);
+
+                                report.push((Action::Addition(1), problem_info));
+                            }
+                            None => {
+                                info!(
+                                    "Creating Restart Order for component {} data requirement {} in {}",
+                                    comp.uuid.unwrap(), data_key, location_key
+                                );
+
+                                report.push((Action::Restart, problem_info));
+                            }
                         }
                     }
                 }

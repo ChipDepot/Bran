@@ -55,7 +55,7 @@ async fn main() {
         });
     });
 
-    let planner = Planner::new(state_planner);
+    let mut planner = Planner::new(state_planner);
 
     loop {
         planner.watch_over().await;
