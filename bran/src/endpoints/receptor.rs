@@ -1,8 +1,9 @@
-use std::{collections::HashMap, net::SocketAddr, sync::Arc};
+use std::collections::HashMap;
+use std::net::SocketAddr;
+use std::sync::{Arc, Mutex};
 
 use serde_json::json;
 use starduck::{AdditionOrder, Application, Directives, ReconfigureOrder, RestartOrder};
-use tokio::sync::Mutex;
 
 use axum::{
     extract::{ConnectInfo, Json, Path},
@@ -21,7 +22,7 @@ pub async fn recieve_objective(
 ) -> Response {
     info!("POST for {} request from {}", app_name, addr);
 
-    let mut guard = app_reg.lock().await;
+    let mut guard = app_reg.lock().unwrap();
 
     if let Some(_) = guard.apps.get(&app_name) {
         error!("Application already registered");
@@ -43,7 +44,7 @@ pub async fn update_state(
 ) -> Response {
     info!("PUT for {} request from {}", app_name, addr);
 
-    let mut guard = app_reg.lock().await;
+    let mut guard = app_reg.lock().unwrap();
 
     if let None = guard.apps.get(&app_name) {
         error!("Application is not in the register");
@@ -65,7 +66,7 @@ pub async fn recieve_addition_directive(
 ) -> Response {
     info!("POST for {} request from {}", app_name, addr);
 
-    let reg = app_reg.lock().await.clone();
+    let reg = app_reg.lock().unwrap().clone();
 
     match reg.apps.get(&app_name) {
         // The application exists on the register
@@ -79,7 +80,7 @@ pub async fn recieve_addition_directive(
                 if let Some(_) = directives.get(&location) {
                     app_reg
                         .lock()
-                        .await
+                        .unwrap()
                         .directives
                         .get_mut(&app_name)
                         .unwrap()
@@ -101,7 +102,7 @@ pub async fn recieve_addition_directive(
 
                 app_reg
                     .lock()
-                    .await
+                    .unwrap()
                     .directives
                     .get_mut(&app_name)
                     .unwrap()
@@ -121,7 +122,7 @@ pub async fn recieve_addition_directive(
 
                 app_reg
                     .lock()
-                    .await
+                    .unwrap()
                     .directives
                     .insert(app_name, directive_hash);
 
@@ -156,7 +157,7 @@ pub async fn recieve_reconfig_directive(
 ) -> Response {
     info!("POST for {} request from {}", app_name, addr);
 
-    let reg = app_reg.lock().await.clone();
+    let reg = app_reg.lock().unwrap().clone();
 
     match reg.apps.get(&app_name) {
         // The application exists on the register
@@ -170,7 +171,7 @@ pub async fn recieve_reconfig_directive(
                 if let Some(_) = directives.get(&location) {
                     app_reg
                         .lock()
-                        .await
+                        .unwrap()
                         .directives
                         .get_mut(&app_name)
                         .unwrap()
@@ -192,7 +193,7 @@ pub async fn recieve_reconfig_directive(
 
                 app_reg
                     .lock()
-                    .await
+                    .unwrap()
                     .directives
                     .get_mut(&app_name)
                     .unwrap()
@@ -212,7 +213,7 @@ pub async fn recieve_reconfig_directive(
 
                 app_reg
                     .lock()
-                    .await
+                    .unwrap()
                     .directives
                     .insert(app_name, directive_hash);
 
@@ -247,7 +248,7 @@ pub async fn recieve_restart_directive(
 ) -> Response {
     info!("POST for {} request from {}", app_name, addr);
 
-    let reg = app_reg.lock().await.clone();
+    let reg = app_reg.lock().unwrap().clone();
 
     match reg.apps.get(&app_name) {
         // The application exists on the register
@@ -261,7 +262,7 @@ pub async fn recieve_restart_directive(
                 if let Some(_) = directives.get(&location) {
                     app_reg
                         .lock()
-                        .await
+                        .unwrap()
                         .directives
                         .get_mut(&app_name)
                         .unwrap()
@@ -283,7 +284,7 @@ pub async fn recieve_restart_directive(
 
                 app_reg
                     .lock()
-                    .await
+                    .unwrap()
                     .directives
                     .get_mut(&app_name)
                     .unwrap()
@@ -303,7 +304,7 @@ pub async fn recieve_restart_directive(
 
                 app_reg
                     .lock()
-                    .await
+                    .unwrap()
                     .directives
                     .insert(app_name, directive_hash);
 
