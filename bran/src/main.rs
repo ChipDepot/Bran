@@ -33,6 +33,7 @@ async fn main() {
         let app = Router::new()
             .nest("/", endpoints::extras_router())
             .nest("/apps", endpoints::main_router())
+            .nest("/directives", endpoints::directives_router())
             .layer(Extension(state_axum));
 
         let addr = SocketAddr::from(([0, 0, 0, 0], port));

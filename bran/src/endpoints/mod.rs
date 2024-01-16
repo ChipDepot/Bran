@@ -16,6 +16,13 @@ pub(crate) fn main_router() -> Router {
         .route("/:app", get(contexter::get_application))
 }
 
+pub(crate) fn directives_router() -> Router {
+    Router::new()
+        .route("/:app/:loc", post(receptor::recieve_addition_directive))
+        .route("/:app/:loc", post(receptor::recieve_reconfig_directive))
+        .route("/:app/:loc", post(receptor::recieve_restart_directive))
+}
+
 pub(crate) fn extras_router() -> Router {
     Router::new().route_service(
         "/favicon.ico",

@@ -92,7 +92,7 @@ impl Planner {
                 for problem in self.find_problems("root", &app.locations) {
                     match problem {
                         (Action::Addition(count), p) => {
-                            if let Some(order) =
+                            if let Some(Some(order)) =
                                 directives.get(&p.location_key).map(|d| d.addition.clone())
                             {
                                 let mut mod_order = order.clone();
@@ -116,7 +116,7 @@ impl Planner {
                             );
                         }
                         (Action::Reconfigure, p) => {
-                            if let Some(order) =
+                            if let Some(Some(order)) =
                                 directives.get(&p.location_key).map(|d| d.reconfig.clone())
                             {
                                 let mut mod_order = order.clone();
@@ -134,7 +134,7 @@ impl Planner {
                             );
                         }
                         (Action::Restart, p) => {
-                            if let Some(order) =
+                            if let Some(Some(order)) =
                                 directives.get(&p.location_key).map(|d| d.restart.clone())
                             {
                                 let mut mod_order = order.clone();
