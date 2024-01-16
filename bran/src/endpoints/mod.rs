@@ -19,15 +19,15 @@ pub(crate) fn main_router() -> Router {
 pub(crate) fn directives_router() -> Router {
     Router::new()
         .route(
-            "addition/:app/:loc",
+            "/addition/:app/:loc",
             post(receptor::recieve_addition_directive),
         )
         .route(
-            "reconfig/:app/:loc",
+            "/reconfig/:app/:loc",
             post(receptor::recieve_reconfig_directive),
         )
         .route(
-            "restart/:app/:loc",
+            "/restart/:app/:loc",
             post(receptor::recieve_restart_directive),
         )
 }
