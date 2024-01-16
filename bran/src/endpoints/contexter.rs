@@ -1,7 +1,8 @@
-use std::{net::SocketAddr, sync::Arc};
+use std::net::SocketAddr;
+use std::sync::Arc;
+use std::sync::Mutex;
 
 use serde_json::json;
-use tokio::sync::Mutex;
 
 use axum::{
     extract::{ConnectInfo, Json, Path},
@@ -19,7 +20,7 @@ pub async fn get_application(
 ) -> Response {
     info!("Get for {} request from {}", app_name, addr);
 
-    let m_app_reg = app_reg.lock().await;
+    let m_app_reg = app_reg.lock().unwrap();
 
     if let Some(app) = m_app_reg.apps.get(&app_name) {
         let json_response = Json(app.clone());
