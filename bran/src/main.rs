@@ -20,8 +20,6 @@ use starduck::utils::PORT;
 async fn main() {
     env_logger::init();
 
-    starduck::utils::load_env(None);
-
     // Locate the space to handle the objective apps
     let app_aggregator = ApplicationRegister::new();
     let state_axum = Arc::new(Mutex::new(app_aggregator));
