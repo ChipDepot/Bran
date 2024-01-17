@@ -78,7 +78,7 @@ impl Planner {
             .apps
             .iter()
             .filter_map(|(_, app)| {
-                if app.status != Status::Coherent {
+                if app.status != Status::Coherent && app.status != Status::Uninitialized {
                     return Some(app);
                 } else {
                     None
