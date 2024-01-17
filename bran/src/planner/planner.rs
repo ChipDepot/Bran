@@ -39,7 +39,7 @@ pub struct Planner {
 }
 
 impl Planner {
-    const DOTHING: &str = "dothing:8050";
+    const DOTHING: &str = "dothing";
     const WATCHER_DELAY: &str = "watcher_delay";
     const INTERVAL: &str = "watcher_interval";
 
@@ -87,7 +87,7 @@ impl Planner {
             .cloned()
             .collect::<Vec<_>>();
 
-        let target = env::var(Self::DOTHING).unwrap_or("localhost:8050".to_owned());
+        let target = env::var(Self::DOTHING).unwrap_or("http://dothing:8050".to_owned());
 
         for app in applications {
             info!("Checking Application {}", &app.name);
@@ -184,21 +184,21 @@ impl Planner {
             );
 
             for (data_key, data_req) in nc_data_req {
-                let req_count = data_req.components.len();
+                let comp_count = data_req.components.len();
 
                 // Missing services, has to add more
-                if data_req.count < req_count {
+                if data_req.count > comp_count {
                     info!(
                         "Creating Addition Order for data requirement {} in {}",
                         data_key, location_key
                     );
 
-                    let missing_count = req_count - data_req.count;
+                    let missing_count = comp_count - data_req.count;
                     let problem_info = ProblemInfo::new(location_key, data_key, &None);
                     report.push((Action::Addition(missing_count), problem_info));
 
                 //
-                } else if data_req.count >= req_count {
+                } else if data_req.count <= comp_count {
                     for comp in data_req.components.clone() {
                         let problem_info = ProblemInfo::new(location_key, data_key, &comp.uuid);
 

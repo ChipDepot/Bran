@@ -106,9 +106,12 @@ pub async fn recieve_addition_directive(
                     .directives
                     .get_mut(&app_name)
                     .unwrap()
-                    .insert(location, directive);
+                    .insert(location.clone(), directive);
 
-                let msg = "Added addition directive in {} in app {}";
+                let msg = format!(
+                    "Added addition directive in {} in app {}",
+                    &location, &app_name
+                );
                 info!("{}", msg);
                 return (StatusCode::OK, Json(json!({"msg": msg}))).into_response();
             }
@@ -118,15 +121,18 @@ pub async fn recieve_addition_directive(
                 let mut directive = Directives::new();
                 directive.addition = Some(order);
 
-                directive_hash.insert(location, directive);
+                directive_hash.insert(location.clone(), directive);
 
                 app_reg
                     .lock()
                     .unwrap()
                     .directives
-                    .insert(app_name, directive_hash);
+                    .insert(app_name.clone(), directive_hash);
 
-                let msg = "Added addition directive in {} in app {}";
+                let msg = format!(
+                    "Added addition directive in {} in app {}",
+                    &location, &app_name
+                );
                 info!("{}", msg);
                 return (StatusCode::OK, Json(json!({"msg": msg}))).into_response();
             }
@@ -197,9 +203,12 @@ pub async fn recieve_reconfig_directive(
                     .directives
                     .get_mut(&app_name)
                     .unwrap()
-                    .insert(location, directive);
+                    .insert(location.clone(), directive);
 
-                let msg = "Added reconfig directive in {} in app {}";
+                let msg = format!(
+                    "Added reconfig directive in {} in app {}",
+                    &location, &app_name
+                );
                 info!("{}", msg);
                 return (StatusCode::OK, Json(json!({"msg": msg}))).into_response();
             }
@@ -209,15 +218,18 @@ pub async fn recieve_reconfig_directive(
                 let mut directive = Directives::new();
                 directive.reconfig = Some(order);
 
-                directive_hash.insert(location, directive);
+                directive_hash.insert(location.clone(), directive);
 
                 app_reg
                     .lock()
                     .unwrap()
                     .directives
-                    .insert(app_name, directive_hash);
+                    .insert(app_name.clone(), directive_hash);
 
-                let msg = "Added reconfig directive in {} in app {}";
+                let msg = format!(
+                    "Added reconfig directive in {} in app {}",
+                    &location, &app_name
+                );
                 info!("{}", msg);
                 return (StatusCode::OK, Json(json!({"msg": msg}))).into_response();
             }
@@ -288,9 +300,12 @@ pub async fn recieve_restart_directive(
                     .directives
                     .get_mut(&app_name)
                     .unwrap()
-                    .insert(location, directive);
+                    .insert(location.clone(), directive);
 
-                let msg = "Added restart directive in {} in app {}";
+                let msg = format!(
+                    "Added restart directive in {} in app {}",
+                    &location, &app_name
+                );
                 info!("{}", msg);
                 return (StatusCode::OK, Json(json!({"msg": msg}))).into_response();
             }
@@ -300,15 +315,18 @@ pub async fn recieve_restart_directive(
                 let mut directive = Directives::new();
                 directive.restart = Some(order);
 
-                directive_hash.insert(location, directive);
+                directive_hash.insert(location.clone(), directive);
 
                 app_reg
                     .lock()
                     .unwrap()
                     .directives
-                    .insert(app_name, directive_hash);
+                    .insert(app_name.clone(), directive_hash);
 
-                let msg = "Added restart directive in {} in app {}";
+                let msg = format!(
+                    "Added restart directive in {} in app {}",
+                    &location, &app_name
+                );
                 info!("{}", msg);
                 return (StatusCode::OK, Json(json!({"msg": msg}))).into_response();
             }
