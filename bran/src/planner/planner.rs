@@ -99,6 +99,8 @@ impl Planner {
                             if let Some(Some(order)) =
                                 directives.get(&p.location_key).map(|d| d.addition.clone())
                             {
+                                info!("Executing Addition order");
+
                                 for i in 1..=count {
                                     let mut mod_order = order.clone();
 
@@ -112,10 +114,13 @@ impl Planner {
                                     }
 
                                     info!("Executing  order {} out of {}", i, count);
-                                    if let Err(e) = mod_order.make_request(&target).await {
-                                        error!("{e}");
-                                        continue;
-                                    };
+
+                                    mod_order.make_request(&target).await.unwrap();
+
+                                    // if let Err(e) = mod_order.make_request(&target).await {
+                                    //     error!("{e}");
+                                    //     continue;
+                                    // };
                                 }
                                 continue;
                             }
@@ -126,6 +131,8 @@ impl Planner {
                             );
                         }
                         (Action::Reconfigure, p) => {
+                            info!("Executing Reconfigure order");
+
                             if let Some(Some(order)) =
                                 directives.get(&p.location_key).map(|d| d.reconfig.clone())
                             {
@@ -134,10 +141,14 @@ impl Planner {
                                 let mut mod_order = order.clone();
                                 mod_order.uuid = Some(p.device_uuid.unwrap());
 
-                                if let Err(e) = mod_order.make_request(&target).await {
-                                    error!("{e}");
-                                    continue;
-                                };
+                                info!("Executing order: {:?}", &mod_order);
+
+                                mod_order.make_request(&target).await.unwrap();
+
+                                // if let Err(e) = mod_order.make_request(&target).await {
+                                //     error!("{e}");
+                                //     continue;
+                                // };
                             }
 
                             warn!(
@@ -146,6 +157,8 @@ impl Planner {
                             );
                         }
                         (Action::Restart, p) => {
+                            info!("Executing Restart order");
+
                             if let Some(Some(order)) =
                                 directives.get(&p.location_key).map(|d| d.restart.clone())
                             {
@@ -154,10 +167,14 @@ impl Planner {
                                 let mut mod_order = order.clone();
                                 mod_order.uuid = Some(p.device_uuid.unwrap());
 
-                                if let Err(e) = mod_order.make_request(&target).await {
-                                    error!("{e}");
-                                    continue;
-                                };
+                                info!("Executing order: {:?}", &mod_order);
+
+                                mod_order.make_request(&target).await.unwrap();
+
+                                // if let Err(e) = mod_order.make_request(&target).await {
+                                //     error!("{e}");
+                                //     continue;
+                                // };
                             }
 
                             warn!(
