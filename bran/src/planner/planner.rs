@@ -92,7 +92,12 @@ impl Planner {
         for app in applications {
             info!("Checking Application {}", &app.name);
 
-            if let Some(directives) = self.register.lock().unwrap().directives.get(&app.name) {
+            let hash_directives = {
+                let guard = &self.register.lock().unwrap();
+                guard.directives.clone()
+            };
+
+            if let Some(directives) = hash_directives.get(&app.name) {
                 for problem in self.find_problems("root", &app.locations) {
                     match problem {
                         (Action::Addition(count), p) => {
@@ -115,12 +120,10 @@ impl Planner {
 
                                     info!("Executing  order {} out of {}", i, count);
 
-                                    mod_order.make_request(&target).await.unwrap();
-
-                                    // if let Err(e) = mod_order.make_request(&target).await {
-                                    //     error!("{e}");
-                                    //     continue;
-                                    // };
+                                    if let Err(e) = mod_order.make_request(&target).await {
+                                        error!("{e}");
+                                        continue;
+                                    };
                                 }
                                 continue;
                             }
@@ -143,12 +146,10 @@ impl Planner {
 
                                 info!("Executing order: {:?}", &mod_order);
 
-                                mod_order.make_request(&target).await.unwrap();
-
-                                // if let Err(e) = mod_order.make_request(&target).await {
-                                //     error!("{e}");
-                                //     continue;
-                                // };
+                                if let Err(e) = mod_order.make_request(&target).await {
+                                    error!("{e}");
+                                };
+                                continue;
                             }
 
                             warn!(
@@ -169,12 +170,10 @@ impl Planner {
 
                                 info!("Executing order: {:?}", &mod_order);
 
-                                mod_order.make_request(&target).await.unwrap();
-
-                                // if let Err(e) = mod_order.make_request(&target).await {
-                                //     error!("{e}");
-                                //     continue;
-                                // };
+                                if let Err(e) = mod_order.make_request(&target).await {
+                                    error!("{e}");
+                                };
+                                continue;
                             }
 
                             warn!(

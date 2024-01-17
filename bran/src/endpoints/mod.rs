@@ -30,6 +30,7 @@ pub(crate) fn directives_router() -> Router {
             "/restart/:app/:loc",
             post(receptor::recieve_restart_directive),
         )
+        .route("/:app", get(contexter::get_application_directives))
 }
 
 pub(crate) fn extras_router() -> Router {
