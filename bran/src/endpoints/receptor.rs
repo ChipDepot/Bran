@@ -48,7 +48,7 @@ pub async fn update_state(
 
     if let None = guard.apps.get(&app_name) {
         error!("Application is not in the register");
-        return (StatusCode::BAD_REQUEST).into_response();
+        return (StatusCode::NOT_FOUND).into_response();
     }
 
     guard.apps.insert(app_name.clone(), application.clone());

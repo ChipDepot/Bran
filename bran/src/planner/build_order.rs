@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 use super::planner::ProblemInfo;
 
-const DATAKEY: &str = "key=";
+const DATAKEY: &str = "key:";
 
 pub trait BuildOrder<T> {
     fn build_order(&mut self, t: &T) -> Result<()>;
@@ -25,8 +25,8 @@ impl BuildOrder<ProblemInfo> for AdditionOrder {
             self.args.push(k);
         }
 
-        self.args.push(format!("location={}", t.location_key));
-        self.args.push(format!("topic={}", t.data_requirement_key));
+        self.args.push(format!("location:{}", t.location_key));
+        self.args.push(format!("topic:{}", t.data_requirement_key));
 
         Ok(())
     }
@@ -50,7 +50,7 @@ impl BuildOrder<ProblemInfo> for AdditionOrder {
                 let (index, str) = &datakeys[0];
                 self.args.remove(index.clone());
 
-                Ok(Some(str.replace(DATAKEY, format!("{}=", req_key).as_str())))
+                Ok(Some(str.replace(DATAKEY, format!("{}:", req_key).as_str())))
             }
             0 => Ok(None),
             _ => bail!("More than one key= string found"),

@@ -57,7 +57,7 @@ impl Planner {
 
         let interval = env::var(Self::INTERVAL)
             .map(|k| std::time::Duration::from_secs(k.parse().unwrap()))
-            .unwrap_or(std::time::Duration::from_secs(10));
+            .unwrap_or(std::time::Duration::from_secs(120));
 
         std::thread::sleep(wait);
 
@@ -99,19 +99,25 @@ impl Planner {
                             if let Some(Some(order)) =
                                 directives.get(&p.location_key).map(|d| d.addition.clone())
                             {
-                                let mut mod_order = order.clone();
+                                for i in 1..=count {
+                                    let mut mod_order = order.clone();
 
-                                if let Err(e) = mod_order.build_order(&p) {
-                                    error!("{e}");
-                                    continue;
-                                }
+                                    info!(
+                                        "Building addition order {} out of {} from {:?}",
+                                        i, count, &p
+                                    );
+                                    if let Err(e) = mod_order.build_order(&p) {
+                                        error!("{e}");
+                                        continue;
+                                    }
 
-                                for _ in 0..count {
+                                    info!("Executing  order {} out of {}", i, count);
                                     if let Err(e) = mod_order.make_request(&target).await {
                                         error!("{e}");
                                         continue;
                                     };
                                 }
+                                continue;
                             }
 
                             warn!(
@@ -193,7 +199,7 @@ impl Planner {
                         data_key, location_key
                     );
 
-                    let missing_count = comp_count - data_req.count;
+                    let missing_count = data_req.count - comp_count;
                     let problem_info = ProblemInfo::new(location_key, data_key, &None);
                     report.push((Action::Addition(missing_count), problem_info));
 
